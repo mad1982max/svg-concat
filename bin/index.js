@@ -6,11 +6,11 @@ const CLIParams = require('../lib/index');
 let argInArr = process.argv.slice(2);
 let cliParams = new CLIParams(argInArr);
 let options = cliParams.parsFromCLI();
-console.log(options);
+console.log('--options', options);
 
 let fileNamesArr = options.in instanceof Object ? options.in : readCurrentDir(options.in);
 let filesRanged = checkForMain(fileNamesArr.slice());
-console.log('afterReAr', filesRanged);
+console.log('--afterReAr', filesRanged);
 
 function reArrange(arr, from, to) {
   let data = arr[from];
@@ -31,7 +31,10 @@ function checkForMain(arr) {
 
 function readCurrentDir(template) {
   let regExp = new RegExp(template, 'g');
-  return fs.readdirSync('./').filter(fileName => fileName.match(regExp));
+  return fs
+            .readdirSync('./')
+            .filter(fileName => fileName.match(regExp))
+            .filter(filename => filename !== options.out && !filename.startsWith('storey-') && !filename.startsWith('black_'));
 }
 
 function readF(name) {
@@ -50,50 +53,77 @@ Promise.all(promiseFilesArr)
     if(data.length === 0) {
       throw new Error('*** files not found!'); 
     }
+    let svg = transformSvg(data);
+    let blackSvg = transformSvgBlack(svg);
+
+    let outFileName = options.out || `storey-${filesRanged[0]}`;
+    let outFileNameBlack = `black_${outFileName}`;
+
+    fs.writeFileSync(outFileName, svg);
+    fs.writeFileSync(outFileNameBlack, blackSvg);
+    
     data.forEach((val,i) => {
       console.log(i, val.length);  
-      let svg = transformSvg(data);
-      let outFileName = options.out || `storey-${filesRanged[0]}`;
-      
-      
-      fs.writeFileSync(outFileName, svg);
-
-  })})
+    })
+  })
   .catch(err => console.log(err.message)
   )
 
   function transformSvg(filesdata) {
     let combineSvg;
-    let regExpDef = /<\/defs>[\t| |\n|\r|\s]*/;
+    let svgTitleReg = /<svg.*?>/i;
+    let closeSvgReg = /<\/svg.*?>/i;
+    let wrapperG = `<g id = 'wrapper' transform = '${options.transform}'>`;
+    let regExpDef = /<defs>[\t| |\n|\r|\s]*.*[\t| |\n|\r|\s]*<\/defs>/;
     let regExpEmptyGroups = /<g.*?>[\t| |\n|\r]*<\/g>[\t| |\n|\r|\s]*/g;    
-    let title = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${options.viewBox}"> \n`;
+    let svgTitle = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="${options.viewBox}"> \n`;
     
     filesdata.forEach((svg, i) => {
-    
-        if(i === 0) {        
-          svg = svg.replace(/<\/svg>[\t| |\n|\r|\s]*/, "");
-  
-          if(svg.search(regExpDef)>-1) {
-              svg = svg.replace(regExpDef, `</defs>\n<g id = 'wrapper' transform = '${options.transform}'> \n`);
-              svg = svg.replace(/<svg.*?>[\t| |\n|\r|\s]*/gs, `${title} \n`);
-          } else {
-              svg = svg.replace(/<svg.*?>[\t| |\n|\r|\s]*/gs, `${title}\r<g id = 'wrapper' transform = '${options.transform}'>\n`);
-          }
-          combineSvg = svg;
+      if( i === 0 ) {
+        
+        if(svg.search(regExpDef)>-1) {
+          svg = svg.replace(/<\/defs>/, `<\/defs>\n${wrapperG}`);
+          svg = svg.replace(svgTitleReg, svgTitle);
         } else {
-          //let gName = options.gName ? options.gName[i-1]: defaultParams.gName[i-1];
-          svg = svg.replace(/<svg.*?>[\t| |\n|\r|\s]*/gs, "");
-          svg = svg.replace(/<\/svg>[\t| |\n|\r|\s]*/, "");
-          svg = `<g class = "${options.gName[i-1]}">\n` + svg + `</g>` + `\n`;
-          combineSvg += svg;   
-        }            
-    });
-    combineSvg += `</g>\n</svg>`;    
+          svg = svg.replace(svgTitleReg, `${svgTitle}\r${wrapperG}`);
+        }
+        svg = svg.replace(closeSvgReg, "");
+        combineSvg = svg;
+      } else {
+        svg = svg.replace(svgTitleReg, '');
+        svg = svg.replace(closeSvgReg, '');
+        svg = `<g class = "${options.gName[i-1]}">` + svg + `</g>`;
+        combineSvg += svg;        
+      }
+    });    
+    combineSvg = combineSvg.replace(/>/g, '>\n');
+    combineSvg += '</g></svg>';
     combineSvg = combineSvg.replace(regExpEmptyGroups, '');
     combineSvg = combineSvg.replace(regExpEmptyGroups, '');
-    combineSvg = combineSvg.replace(/\n[\t| |\n|\r|\s]*\n/g, ' ');
-    return combineSvg;
+    return combineSvg
   }
+
+  let styleReg = /<style>[\n]*.*?<\/style>/;
+  let colorToChange = options.change;
+  let colorReg = new RegExp(`${colorToChange}`, 'g');  
+  let color1 = 'white';
+  let color2 = 'black';
+
+  function transformSvgBlack(svg) {
+
+    svg = svg.replace(colorReg, color1); //cls-4
+    svg = svg.replace(styleReg, (match) => {
+      match = match.replace(/.cls-2[ ]*?{(.*?)}/, (match2, g) => {
+        console.log(match2, g);
+        let arr = g.split(':');
+        return `.cls-2{${arr[0]}:${color2}}`;
+      })
+      return match;      
+    })
+    return svg;
+  };
+
+   
 
 
   //HOW TO RUN
