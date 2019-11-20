@@ -9,25 +9,41 @@ let options = cliParams.parsFromCLI();
 console.log('--options', options);
 
 let fileNamesArr = options.in instanceof Object ? options.in : readCurrentDir(options.in);
-let filesRanged = checkForMain(fileNamesArr.slice());
-console.log('--afterReAr', filesRanged);
+//let filesRanged = checkForMain(fileNamesArr.slice());
+//console.log('--afterReAr', filesRanged);
 
-function reArrange(arr, from, to) {
-  let data = arr[from];
-  arr.splice(from, 1);
-  arr.splice(to, 0, data);
-  return arr;
+if(options.in instanceof Object) {
+  let obj = parserName(options.in[0])
+  console.log('------', obj)
 }
 
-function checkForMain(arr) {
-  if(options.in instanceof Object) {
-    return arr;
-  } else {
-    let fileNameLength = arr.map(item => item.length);
-    let iOfMinLength = fileNameLength.indexOf(Math.min(...fileNameLength));
-    return reArrange(arr, iOfMinLength, 0);    
-  }
+
+
+function parserName(string) {
+  let slashLastIndex = string.lastIndexOf('/');
+  console.log('***', slashLastIndex, string.slice(0, slashLastIndex + 1))
+  let arr = string.split('/');
+  return {fullPath: string, pathBefore: string.slice(0, slashLastIndex + 1) ,fileName: arr[arr.length-1]}
+
 }
+
+
+// function reArrange(arr, from, to) {
+//   let data = arr[from];
+//   arr.splice(from, 1);
+//   arr.splice(to, 0, data);
+//   return arr;
+// }
+
+// function checkForMain(arr) {
+//   if(options.in instanceof Object) {
+//     return arr;
+//   } else {
+//     let fileNameLength = arr.map(item => item.length);
+//     let iOfMinLength = fileNameLength.indexOf(Math.min(...fileNameLength));
+//     return reArrange(arr, iOfMinLength, 0);    
+//   }
+// }
 
 function readCurrentDir(template) {
   let regExp = new RegExp(template, 'g');
@@ -46,7 +62,8 @@ function readF(name) {
   })
 }
 
-let promiseFilesArr = filesRanged.map(file => readF(file));
+let promiseFilesArr = fileNamesArr.map(file => readF(file));
+//let promiseFilesArr = filesRanged.map(file => readF(file));
 
 Promise.all(promiseFilesArr)
   .then(data => {
@@ -56,8 +73,9 @@ Promise.all(promiseFilesArr)
     let svg = transformSvg(data);
     let blackSvg = transformSvgBlack(svg);
 
-    let outFileName = options.out || `storey-${filesRanged[0]}`;
-    let outFileNameBlack = `black_${outFileName}`;
+    let outFileName = options.out || `storey-${parserName((fileNamesArr[0]).fileName)}`;
+    let nameObg = parserName(outFileName);
+    let outFileNameBlack = `${nameObg.pathBefore}black_${nameObg.fileName}`;
 
     fs.writeFileSync(outFileName, svg);
     fs.writeFileSync(outFileNameBlack, blackSvg);
@@ -110,7 +128,6 @@ Promise.all(promiseFilesArr)
   let color2 = 'black';
 
   function transformSvgBlack(svg) {
-
     svg = svg.replace(colorReg, color1); //cls-4
     svg = svg.replace(styleReg, (match) => {
       match = match.replace(/.cls-2[ ]*?{(.*?)}/, (match2, g) => {
