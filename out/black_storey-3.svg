@@ -2,7 +2,7 @@
  
 <defs>
 <style>
-.cls-1,.cls-11,.cls-12,.cls-13,.cls-3,.cls-6{fill:none;}.cls-2{fill:black}.cls-11,.cls-13,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6{stroke:white;}.cls-11,.cls-12,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6{stroke-width:0.08px;}.cls-12,.cls-3,.cls-4{stroke-miterlimit:10;}.cls-4,.cls-5{fill:#fff;}.cls-5,.cls-6{stroke-linecap:square;}.cls-7{clip-path:url(#clip-path);}.cls-8{fill:white;}.cls-9{clip-path:url(#clip-path-2);}.cls-10{clip-path:url(#clip-path-3);}.cls-12{stroke:#000;}.cls-13{stroke-width:0.16px;}</style>
+.cls-1,.cls-11,.cls-12,.cls-13,.cls-3,.cls-6{fill:none;}.cls-2{fill:#8a6459;}.cls-11,.cls-13,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6{stroke:white;}.cls-11,.cls-12,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6{stroke-width:0.08px;}.cls-12,.cls-3,.cls-4{stroke-miterlimit:10;}.cls-4,.cls-5{fill:#fff;}.cls-5,.cls-6{stroke-linecap:square;}.cls-7{clip-path:url(#clip-path);}.cls-8{fill:white;}.cls-9{clip-path:url(#clip-path-2);}.cls-10{clip-path:url(#clip-path-3);}.cls-12{stroke:#000;}.cls-13{stroke-width:0.16px;}.cls-4,.cls-7,.cls-5,.cls-2{fill:black;}</style>
 <clipPath id="clip-path">
 <polygon class="cls-1" points="46.633 63.251 43.473 61.514 45.36 58.09 48.521 59.827 46.633 63.251"/>
 </clipPath>

@@ -127,14 +127,28 @@ Promise.all(promiseFilesArr)
   let color1 = 'white';
   let color2 = 'black';
 
+  // function transformSvgBlack(svg) {
+  //   svg = svg.replace(colorReg, color1); //cls-4
+  //   svg = svg.replace(styleReg, (match) => {
+  //     match = match.replace(/.cls-2[ ]*?{(.*?)}/, (match2, g) => {
+  //       console.log(match2, g);
+  //       let arr = g.split(':');
+  //       return `.cls-2{${arr[0]}:${color2}}`;
+  //     })
+  //     return match;      
+  //   })
+  //   return svg;
+  // };
+
   function transformSvgBlack(svg) {
     svg = svg.replace(colorReg, color1); //cls-4
     svg = svg.replace(styleReg, (match) => {
-      match = match.replace(/.cls-2[ ]*?{(.*?)}/, (match2, g) => {
-        console.log(match2, g);
-        let arr = g.split(':');
-        return `.cls-2{${arr[0]}:${color2}}`;
-      })
+      
+      match = match.replace(/<\/style>/, '');
+      //match = `${match}</style>`;
+      //match = `${match}.cls-11,.cls-13,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6{stroke:${color1};}.cls-8{fill:${color1};}.cls-4,.cls-5,.cls-2{fill:${color2};}</style>`;
+      //match = `${match}.cls-7,.cls-5,.cls-2{fill:${color2};}</style>`;
+      match = `${match}.cls-3{fill:${color2};}.cls-2{fill:${color2};}</style>`;
       return match;      
     })
     return svg;
@@ -148,3 +162,4 @@ Promise.all(promiseFilesArr)
 
 
 //nodemon index.js -in=1.svg,ARK_FP_Rooms_1.svg,ARK_FP_Zones_1.svg -gName=rooms,zones -out=storey-1.svg
+//'-in=../in/3.svg,../in/ARK_FP_Rooms_3.svg,../in/ARK_FP_Zones_3.svg -gName=rooms,zones -out=../out/storey-3.svg'

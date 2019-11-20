@@ -1,7 +1,7 @@
 {
   "name": "svg-concat",
-  "version": "1.0.6",
-  "description": "wor partly. In future - concatination many svg in one using groups",
+  "version": "1.0.7",
+  "description": "added path",
   "main": "./lib/index.js",
   "bin": {
     "svg-concat": "./bin/index.js"
