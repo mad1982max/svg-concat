@@ -17,14 +17,11 @@ if(options.in instanceof Object) {
   console.log('------', obj)
 }
 
-
-
 function parserName(string) {
   let slashLastIndex = string.lastIndexOf('/');
   console.log('***', slashLastIndex, string.slice(0, slashLastIndex + 1))
   let arr = string.split('/');
   return {fullPath: string, pathBefore: string.slice(0, slashLastIndex + 1) ,fileName: arr[arr.length-1]}
-
 }
 
 
@@ -123,32 +120,19 @@ Promise.all(promiseFilesArr)
 
   let styleReg = /<style>[\n]*.*?<\/style>/;
   let colorToChange = options.change;
-  let colorReg = new RegExp(`${colorToChange}`, 'g');  
   let color1 = 'white';
   let color2 = 'black';
 
-  // function transformSvgBlack(svg) {
-  //   svg = svg.replace(colorReg, color1); //cls-4
-  //   svg = svg.replace(styleReg, (match) => {
-  //     match = match.replace(/.cls-2[ ]*?{(.*?)}/, (match2, g) => {
-  //       console.log(match2, g);
-  //       let arr = g.split(':');
-  //       return `.cls-2{${arr[0]}:${color2}}`;
-  //     })
-  //     return match;      
-  //   })
-  //   return svg;
-  // };
-
+  let colorStroke = new RegExp(`stroke:[ ]?${colorToChange}`, 'g'); 
+  let colorFill = new RegExp(`fill:[ ]?${colorToChange}`, 'g'); 
+  
   function transformSvgBlack(svg) {
-    svg = svg.replace(colorReg, color1); //cls-4
-    svg = svg.replace(styleReg, (match) => {
-      
+    svg = svg.replace(colorStroke, `stroke: ${color1}`);
+    svg = svg.replace(/fill:[ ]?#fff/g, 'fill:black');
+    svg = svg.replace(colorFill, `fill: ${color1}`);
+    svg = svg.replace(styleReg, (match) => {      
       match = match.replace(/<\/style>/, '');
-      //match = `${match}</style>`;
-      //match = `${match}.cls-11,.cls-13,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6{stroke:${color1};}.cls-8{fill:${color1};}.cls-4,.cls-5,.cls-2{fill:${color2};}</style>`;
-      //match = `${match}.cls-7,.cls-5,.cls-2{fill:${color2};}</style>`;
-      match = `${match}.cls-3{fill:${color2};}.cls-2{fill:${color2};}</style>`;
+      match = `${match}.cls-2{fill:${color2};}</style>`;      
       return match;      
     })
     return svg;
@@ -162,4 +146,5 @@ Promise.all(promiseFilesArr)
 
 
 //nodemon index.js -in=1.svg,ARK_FP_Rooms_1.svg,ARK_FP_Zones_1.svg -gName=rooms,zones -out=storey-1.svg
-//'-in=../in/3.svg,../in/ARK_FP_Rooms_3.svg,../in/ARK_FP_Zones_3.svg -gName=rooms,zones -out=../out/storey-3.svg'
+//'nodemon index.js -in=../in/3.svg,../in/ARK_FP_Rooms_3.svg,../in/ARK_FP_Zones_3.svg -gName=rooms,zones -out=../out/storey-3.svg'
+//npm i -g nodemon
